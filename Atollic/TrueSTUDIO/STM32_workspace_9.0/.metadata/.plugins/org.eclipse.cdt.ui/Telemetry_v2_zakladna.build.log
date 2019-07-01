@@ -1,0 +1,122 @@
+10:13:09 **** Incremental Build of configuration Debug for project Telemetry_v2_zakladna ****
+Info: Internal Builder is used for build
+arm-atollic-eabi-gcc -c -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -std=gnu11 -D__weak=__attribute__((weak)) -D__packed=__attribute__((__packed__)) -DUSE_HAL_DRIVER -DSTM32F429xx -I../Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -g -fstack-usage -Wall -specs=nano.specs -o Src\main.o ..\Src\main.c 
+..\Src\main.c: In function 'handleResp':
+..\Src\main.c:128:3: warning: implicit declaration of function 'vypis' [-Wimplicit-function-declaration]
+   vypis("[LoRa] OK\r\n");
+   ^~~~~
+..\Src\main.c: In function 'addToMsg':
+..\Src\main.c:156:21: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
+  int sizeNewArray = strlen(dst) + strlen(src) + 1;
+                     ^~~~~~
+..\Src\main.c:156:21: warning: incompatible implicit declaration of built-in function 'strlen'
+..\Src\main.c:156:21: note: include '<string.h>' or provide a declaration of 'strlen'
+..\Src\main.c:158:2: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  strcpy(newJSON, dst);
+  ^~~~~~
+..\Src\main.c:158:2: warning: incompatible implicit declaration of built-in function 'strcpy'
+..\Src\main.c:158:2: note: include '<string.h>' or provide a declaration of 'strcpy'
+..\Src\main.c: In function 'removeDoubles':
+..\Src\main.c:175:45: warning: passing argument 2 of 'getCharCount' from incompatible pointer type [-Wincompatible-pointer-types]
+  uint16_t specCharCount = getCharCount(msg, msg_len, 0xfe)
+                                             ^~~~~~~
+..\Src\main.c:164:10: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint16_t * {aka short unsigned int *}'
+ uint16_t getCharCount(uint8_t *msg, uint8_t *msg_len, uint8_t ch) {
+          ^~~~~~~~~~~~
+..\Src\main.c:176:24: warning: passing argument 2 of 'getCharCount' from incompatible pointer type [-Wincompatible-pointer-types]
+    + getCharCount(msg, msg_len, 0xff);
+                        ^~~~~~~
+..\Src\main.c:164:10: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint16_t * {aka short unsigned int *}'
+ uint16_t getCharCount(uint8_t *msg, uint8_t *msg_len, uint8_t ch) {
+          ^~~~~~~~~~~~
+..\Src\main.c: In function 'parseMessage':
+..\Src\main.c:229:3: warning: 'return' with no value, in function returning non-void
+   return;
+   ^~~~~~
+..\Src\main.c:211:7: note: declared here
+ char* parseMessage(uint8_t *msg, uint16_t *msg_len) {
+       ^~~~~~~~~~~~
+..\Src\main.c:265:35: warning: format '%u' expects argument of type 'unsigned int', but argument 3 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                   ^
+..\Src\main.c:265:77: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                                                             ^
+..\Src\main.c:265:116: warning: format '%u' expects argument of type 'unsigned int', but argument 7 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                                                                                                    ^
+..\Src\main.c:265:130: warning: format '%u' expects argument of type 'unsigned int', but argument 8 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                                                                                                                  ^
+..\Src\main.c:502:46: warning: incompatible implicit declaration of built-in function 'strlen'
+  HAL_UART_Transmit(&huart2, (uint8_t*) JSON, strlen(JSON), 200); // TODO: timeout correction?
+                                              ^~~~~~
+..\Src\main.c:502:46: note: include '<string.h>' or provide a declaration of 'strlen'
+..\Src\main.c: At top level:
+..\Src\main.c:591:6: warning: conflicting types for 'vypis'
+ void vypis(char str[]) {
+      ^~~~~
+..\Src\main.c:128:3: note: previous implicit declaration of 'vypis' was here
+   vypis("[LoRa] OK\r\n");
+   ^~~~~
+..\Src\main.c: In function 'vypis':
+..\Src\main.c:592:45: warning: incompatible implicit declaration of built-in function 'strlen'
+  HAL_UART_Transmit(&huart2, (uint8_t*) str, strlen(str), 200);
+                                             ^~~~~~
+..\Src\main.c:592:45: note: include '<string.h>' or provide a declaration of 'strlen'
+..\Src\main.c: In function 'main':
+..\Src\main.c:737:10: warning: pointer targets in passing argument 1 of 'vypis' differ in signedness [-Wpointer-sign]
+    vypis(Esp32_Sentence);
+          ^~~~~~~~~~~~~~
+..\Src\main.c:591:6: note: expected 'char *' but argument is of type 'uint8_t * {aka unsigned char *}'
+ void vypis(char str[]) {
+      ^~~~~
+..\Src\main.c:743:17: warning: passing argument 1 of 'parseMessage' from incompatible pointer type [-Wincompatible-pointer-types]
+    parseMessage(&hcSentence, &hcSentenceLength);
+                 ^
+..\Src\main.c:211:7: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint8_t (*)[255] {aka unsigned char (*)[255]}'
+ char* parseMessage(uint8_t *msg, uint16_t *msg_len) {
+       ^~~~~~~~~~~~
+..\Src\main.c: In function 'HAL_TIM_PeriodElapsedCallback':
+..\Src\main.c:1425:43: warning: pointer targets in passing argument 2 of 'HAL_UART_Transmit' differ in signedness [-Wpointer-sign]
+    uint8_t x = HAL_UART_Transmit(&huart7, "OK", 2, 5); // WiFi OK
+                                           ^~~~
+In file included from ../Inc/stm32f4xx_hal_conf.h:368:0,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:46,
+                 from ..\Src\main.c:40:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:645:19: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'char *'
+ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+                   ^~~~~~~~~~~~~~~~~
+..\Src\main.c:1425:12: warning: unused variable 'x' [-Wunused-variable]
+    uint8_t x = HAL_UART_Transmit(&huart7, "OK", 2, 5); // WiFi OK
+            ^
+..\Src\main.c:1429:43: warning: pointer targets in passing argument 2 of 'HAL_UART_Transmit' differ in signedness [-Wpointer-sign]
+    uint8_t y = HAL_UART_Transmit(&huart8, "OK", 2, 5); // HC-12 OK
+                                           ^~~~
+In file included from ../Inc/stm32f4xx_hal_conf.h:368:0,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:46,
+                 from ..\Src\main.c:40:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:645:19: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'char *'
+ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+                   ^~~~~~~~~~~~~~~~~
+..\Src\main.c:1429:12: warning: unused variable 'y' [-Wunused-variable]
+    uint8_t y = HAL_UART_Transmit(&huart8, "OK", 2, 5); // HC-12 OK
+            ^
+At top level:
+..\Src\main.c:1109:13: warning: 'MX_CAN1_Init' defined but not used [-Wunused-function]
+ static void MX_CAN1_Init(void) {
+             ^~~~~~~~~~~~
+arm-atollic-eabi-gcc -o Telemetry_v2_zakladna.elf Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_cortex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ramfunc.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_gpio.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_i2c.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_i2c_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_uart.o Src\gps.o Src\lora_sx1276.o Src\main.o Src\stm32f4xx_hal_msp.o Src\stm32f4xx_it.o Src\syscalls.o Src\system_stm32f4xx.o startup\startup_stm32f429xx.o -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -T../STM32F429VI_FLASH.ld -specs=nosys.specs -static -Wl,-Map=Telemetry_v2_zakladna.map -Wl,--gc-sections -Wl,--defsym=malloc_getpagesize_P=0x80 -Wl,--start-group -lc -lm -Wl,--end-group -specs=nano.specs 
+C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.0.1\ide\jre\bin\java -jar C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.0.1\Tools\arm-atollic-reports.jar sizeinfo list Telemetry_v2_zakladna.elf 
+Generate build reports...
+Print size information
+   text	   data	    bss	    dec	    hex	filename
+  90624	    120	   4308	  95052	  1734c	Telemetry_v2_zakladna.elf
+Print size information done
+Generate listing file
+Output sent to: Telemetry_v2_zakladna.list
+Generate listing file done
+Generate build reports done
+
+10:13:11 Build Finished (took 1s.810ms)
+

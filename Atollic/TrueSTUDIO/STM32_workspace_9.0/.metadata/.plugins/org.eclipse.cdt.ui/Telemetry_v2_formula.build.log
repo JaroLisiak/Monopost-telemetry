@@ -1,0 +1,251 @@
+14:30:45 **** Incremental Build of configuration Debug for project Telemetry_v2_formula ****
+Info: Internal Builder is used for build
+arm-atollic-eabi-gcc -c -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -std=gnu11 -D__weak=__attribute__((weak)) -D__packed=__attribute__((__packed__)) -DUSE_HAL_DRIVER -DSTM32F429xx -I../Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -g -fstack-usage -Wall -specs=nano.specs -o Src\main.o ..\Src\main.c 
+..\Src\main.c: In function 'sendHc12':
+..\Src\main.c:243:33: warning: implicit declaration of function 'malloc' [-Wimplicit-function-declaration]
+  uint8_t * new_msg = (uint8_t*) malloc(*msg_len + specCharCount + 6);// original size + doubled chars + header & footer
+                                 ^~~~~~
+..\Src\main.c:243:33: warning: incompatible implicit declaration of built-in function 'malloc'
+..\Src\main.c:243:33: note: include '<stdlib.h>' or provide a declaration of 'malloc'
+..\Src\main.c:274:2: warning: implicit declaration of function 'vypis' [-Wimplicit-function-declaration]
+  vypis("\r\n");
+  ^~~~~
+..\Src\main.c:275:2: warning: implicit declaration of function 'free' [-Wimplicit-function-declaration]
+  free(new_msg);
+  ^~~~
+..\Src\main.c:275:2: warning: incompatible implicit declaration of built-in function 'free'
+..\Src\main.c:275:2: note: include '<stdlib.h>' or provide a declaration of 'free'
+..\Src\main.c: In function 'sendEsp32':
+..\Src\main.c:295:33: warning: incompatible implicit declaration of built-in function 'malloc'
+  uint8_t * new_msg = (uint8_t*) malloc(*msg_len + specCharCount + 6);// original size + doubled chars + header & footer
+                                 ^~~~~~
+..\Src\main.c:295:33: note: include '<stdlib.h>' or provide a declaration of 'malloc'
+..\Src\main.c:316:23: warning: passing argument 2 of 'sendWiFiMsg' makes pointer from integer without a cast [-Wint-conversion]
+  sendWiFiMsg(new_msg, newIndex);
+                       ^~~~~~~~
+..\Src\main.c:165:7: note: expected 'uint16_t * {aka short unsigned int *}' but argument is of type 'uint16_t {aka short unsigned int}'
+ char* sendWiFiMsg(uint8_t *msg, uint16_t *msg_len);
+       ^~~~~~~~~~~
+..\Src\main.c:320:2: warning: incompatible implicit declaration of built-in function 'free'
+  free(new_msg);
+  ^~~~
+..\Src\main.c:320:2: note: include '<stdlib.h>' or provide a declaration of 'free'
+..\Src\main.c: In function 'send':
+..\Src\main.c:327:33: warning: passing argument 2 of 'sendWiFiMsg' from incompatible pointer type [-Wincompatible-pointer-types]
+  uint8_t res = sendWiFiMsg(msg, msg_len);
+                                 ^~~~~~~
+..\Src\main.c:165:7: note: expected 'uint16_t * {aka short unsigned int *}' but argument is of type 'uint8_t * {aka unsigned char *}'
+ char* sendWiFiMsg(uint8_t *msg, uint16_t *msg_len);
+       ^~~~~~~~~~~
+..\Src\main.c:327:16: warning: initialization makes integer from pointer without a cast [-Wint-conversion]
+  uint8_t res = sendWiFiMsg(msg, msg_len);
+                ^~~~~~~~~~~
+..\Src\main.c:328:10: warning: unused variable 'res2' [-Wunused-variable]
+  uint8_t res2 = sendHc12(msg, msg_len);
+          ^~~~
+..\Src\main.c:327:10: warning: unused variable 'res' [-Wunused-variable]
+  uint8_t res = sendWiFiMsg(msg, msg_len);
+          ^~~
+..\Src\main.c: In function 'append_message_ID':
+..\Src\main.c:384:20: warning: implicit declaration of function 'realloc' [-Wimplicit-function-declaration]
+  msg = (uint8_t *) realloc(msg, *msg_len + dataSize * sizeof(uint8_t));
+                    ^~~~~~~
+..\Src\main.c:384:20: warning: incompatible implicit declaration of built-in function 'realloc'
+..\Src\main.c:384:20: note: include '<stdlib.h>' or provide a declaration of 'realloc'
+..\Src\main.c:386:6: warning: unused variable 'index' [-Wunused-variable]
+  int index = *msg_len;
+      ^~~~~
+..\Src\main.c: At top level:
+..\Src\main.c:458:6: warning: conflicting types for 'vypis'
+ void vypis(char str[]) {
+      ^~~~~
+..\Src\main.c:274:2: note: previous implicit declaration of 'vypis' was here
+  vypis("\r\n");
+  ^~~~~
+..\Src\main.c: In function 'addToMsg':
+..\Src\main.c:470:28: warning: incompatible implicit declaration of built-in function 'malloc'
+  char * newJSON = (char *) malloc(sizeNewArray);
+                            ^~~~~~
+..\Src\main.c:470:28: note: include '<stdlib.h>' or provide a declaration of 'malloc'
+..\Src\main.c:473:2: warning: incompatible implicit declaration of built-in function 'free'
+  free(dst); // free old memory
+  ^~~~
+..\Src\main.c:473:2: note: include '<stdlib.h>' or provide a declaration of 'free'
+..\Src\main.c: In function 'main':
+..\Src\main.c:641:29: warning: pointer targets in passing argument 2 of 'HAL_UART_Transmit' differ in signedness [-Wpointer-sign]
+  HAL_UART_Transmit(&huart8, "AT+P8\0", 6, 100);
+                             ^~~~~~~~~
+In file included from ../Inc/stm32f4xx_hal_conf.h:368:0,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:46,
+                 from ..\Src\main.c:40:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:645:19: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'char *'
+ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+                   ^~~~~~~~~~~~~~~~~
+..\Src\main.c:720:18: warning: incompatible implicit declaration of built-in function 'malloc'
+   uint8_t* msg = malloc(sizeof(uint8_t));
+                  ^~~~~~
+..\Src\main.c:720:18: note: include '<stdlib.h>' or provide a declaration of 'malloc'
+..\Src\main.c:728:10: warning: implicit declaration of function 'append_BBOX_power_Data' [-Wimplicit-function-declaration]
+    msg = append_BBOX_power_Data(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~~~~~
+..\Src\main.c:728:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_BBOX_power_Data(msg, &msg_len);
+        ^
+..\Src\main.c:729:10: warning: implicit declaration of function 'append_wheel_RPM_Data' [-Wimplicit-function-declaration]
+    msg = append_wheel_RPM_Data(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~~~~
+..\Src\main.c:729:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_wheel_RPM_Data(msg, &msg_len);
+        ^
+..\Src\main.c:730:10: warning: implicit declaration of function 'append_BBOX_status_Data' [-Wimplicit-function-declaration]
+    msg = append_BBOX_status_Data(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~~~~~~
+..\Src\main.c:730:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_BBOX_status_Data(msg, &msg_len);
+        ^
+..\Src\main.c:737:10: warning: implicit declaration of function 'append_FU_Values_1' [-Wimplicit-function-declaration]
+    msg = append_FU_Values_1(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~
+..\Src\main.c:737:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_FU_Values_1(msg, &msg_len);
+        ^
+..\Src\main.c:738:10: warning: implicit declaration of function 'append_BBOX_command' [-Wimplicit-function-declaration]
+    msg = append_BBOX_command(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~~
+..\Src\main.c:738:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_BBOX_command(msg, &msg_len);
+        ^
+..\Src\main.c:739:10: warning: implicit declaration of function 'append_BMS_Command' [-Wimplicit-function-declaration]
+    msg = append_BMS_Command(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~
+..\Src\main.c:739:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_BMS_Command(msg, &msg_len);
+        ^
+..\Src\main.c:740:10: warning: implicit declaration of function 'append_BMS_State' [-Wimplicit-function-declaration]
+    msg = append_BMS_State(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~
+..\Src\main.c:740:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_BMS_State(msg, &msg_len);
+        ^
+..\Src\main.c:747:10: warning: implicit declaration of function 'append_ECU_State' [-Wimplicit-function-declaration]
+    msg = append_ECU_State(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~
+..\Src\main.c:747:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_ECU_State(msg, &msg_len);
+        ^
+..\Src\main.c:748:10: warning: implicit declaration of function 'append_FU_Values_2' [-Wimplicit-function-declaration]
+    msg = append_FU_Values_2(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~
+..\Src\main.c:748:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_FU_Values_2(msg, &msg_len);
+        ^
+..\Src\main.c:750:10: warning: implicit declaration of function 'append_GPS_Data' [-Wimplicit-function-declaration]
+    msg = append_GPS_Data(msg, &msg_len);
+          ^~~~~~~~~~~~~~~
+..\Src\main.c:750:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_GPS_Data(msg, &msg_len);
+        ^
+..\Src\main.c:756:10: warning: implicit declaration of function 'append_Interconnect' [-Wimplicit-function-declaration]
+    msg = append_Interconnect(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~~
+..\Src\main.c:756:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_Interconnect(msg, &msg_len);
+        ^
+..\Src\main.c:757:10: warning: implicit declaration of function 'append_BMS_Voltages' [-Wimplicit-function-declaration]
+    msg = append_BMS_Voltages(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~~~~
+..\Src\main.c:757:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_BMS_Voltages(msg, &msg_len);
+        ^
+..\Src\main.c:758:10: warning: implicit declaration of function 'append_BMS_Temps' [-Wimplicit-function-declaration]
+    msg = append_BMS_Temps(msg, &msg_len);
+          ^~~~~~~~~~~~~~~~
+..\Src\main.c:758:8: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+    msg = append_BMS_Temps(msg, &msg_len);
+        ^
+..\Src\main.c:762:13: warning: passing argument 2 of 'send' from incompatible pointer type [-Wincompatible-pointer-types]
+   send(msg, &msg_len); // sendData(msg, &msg_len);
+             ^
+..\Src\main.c:326:6: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint16_t * {aka short unsigned int *}'
+ void send(uint8_t *msg, uint8_t *msg_len) {
+      ^~~~
+..\Src\main.c:763:3: warning: incompatible implicit declaration of built-in function 'free'
+   free(msg);
+   ^~~~
+..\Src\main.c:763:3: note: include '<stdlib.h>' or provide a declaration of 'free'
+..\Src\main.c: In function 'removeDoubles':
+..\Src\main.c:1302:45: warning: passing argument 2 of 'getCharCount' from incompatible pointer type [-Wincompatible-pointer-types]
+  uint16_t specCharCount = getCharCount(msg, msg_len, 0xfe)
+                                             ^~~~~~~
+..\Src\main.c:220:10: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint16_t * {aka short unsigned int *}'
+ uint16_t getCharCount(uint8_t *msg, uint8_t *msg_len, uint8_t ch) {
+          ^~~~~~~~~~~~
+..\Src\main.c:1303:24: warning: passing argument 2 of 'getCharCount' from incompatible pointer type [-Wincompatible-pointer-types]
+    + getCharCount(msg, msg_len, 0xff);
+                        ^~~~~~~
+..\Src\main.c:220:10: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint16_t * {aka short unsigned int *}'
+ uint16_t getCharCount(uint8_t *msg, uint8_t *msg_len, uint8_t ch) {
+          ^~~~~~~~~~~~
+..\Src\main.c:1305:34: warning: incompatible implicit declaration of built-in function 'malloc'
+  uint8_t * new_msg = (uint8_t *) malloc(new_msg_size);
+                                  ^~~~~~
+..\Src\main.c:1305:34: note: include '<stdlib.h>' or provide a declaration of 'malloc'
+..\Src\main.c:1331:2: warning: incompatible implicit declaration of built-in function 'free'
+  free(msg);
+  ^~~~
+..\Src\main.c:1331:2: note: include '<stdlib.h>' or provide a declaration of 'free'
+..\Src\main.c: In function 'sendWiFiMsg':
+..\Src\main.c:1358:15: warning: incompatible implicit declaration of built-in function 'malloc'
+  char* JSON = malloc(sizeof(char));  // main (final JSON)
+               ^~~~~~
+..\Src\main.c:1358:15: note: include '<stdlib.h>' or provide a declaration of 'malloc'
+..\Src\main.c:1377:35: warning: format '%u' expects argument of type 'unsigned int', but argument 3 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                   ^
+..\Src\main.c:1377:77: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                                                             ^
+..\Src\main.c:1377:116: warning: format '%u' expects argument of type 'unsigned int', but argument 7 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                                                                                                    ^
+..\Src\main.c:1377:130: warning: format '%u' expects argument of type 'unsigned int', but argument 8 has type 'long unsigned int' [-Wformat=]
+      "\"GPS_data\":{\"latitude\":%u,\"latitude_char\":\"%c\",\"longitude\":%u,\"longitude_char\":\"%c\",\"speed\":%u,\"course\":%u,\"altitude\":%ld}",
+                                                                                                                                  ^
+..\Src\main.c:1615:43: warning: pointer targets in passing argument 2 of 'HAL_UART_Transmit' differ in signedness [-Wpointer-sign]
+  uint8_t res = HAL_UART_Transmit(&huart7, JSON, strlen(JSON), 1500);
+                                           ^~~~
+In file included from ../Inc/stm32f4xx_hal_conf.h:368:0,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:46,
+                 from ..\Src\main.c:40:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:645:19: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'char *'
+ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+                   ^~~~~~~~~~~~~~~~~
+..\Src\main.c:1617:2: warning: incompatible implicit declaration of built-in function 'free'
+  free(JSON);
+  ^~~~
+..\Src\main.c:1617:2: note: include '<stdlib.h>' or provide a declaration of 'free'
+..\Src\main.c:1615:10: warning: unused variable 'res' [-Wunused-variable]
+  uint8_t res = HAL_UART_Transmit(&huart7, JSON, strlen(JSON), 1500);
+          ^~~
+..\Src\main.c: In function 'sendEsp32':
+..\Src\main.c:324:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+..\Src\main.c: In function 'sendWiFiMsg':
+..\Src\main.c:1618:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+arm-atollic-eabi-gcc -o Telemetry_v2_formula.elf Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_cortex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ramfunc.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_gpio.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_i2c.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_i2c_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim_ex.o Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_uart.o Src\CAN2018.o Src\gps.o Src\lora_sx1276.o Src\main.o Src\stm32f4xx_hal_msp.o Src\stm32f4xx_it.o Src\syscalls.o Src\system_stm32f4xx.o startup\startup_stm32f429xx.o -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -T../STM32F429VI_FLASH.ld -specs=nosys.specs -static -Wl,-Map=Telemetry_v2_formula.map -Wl,--gc-sections -Wl,--defsym=malloc_getpagesize_P=0x80 -Wl,--start-group -lc -lm -Wl,--end-group -specs=nano.specs 
+C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.0.1\ide\jre\bin\java -jar C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.0.1\Tools\arm-atollic-reports.jar sizeinfo list Telemetry_v2_formula.elf 
+Generate build reports...
+Print size information
+   text	   data	    bss	    dec	    hex	filename
+ 112304	    128	   4236	 116668	  1c7bc	Telemetry_v2_formula.elf
+Print size information done
+Generate listing file
+Output sent to: Telemetry_v2_formula.list
+Generate listing file done
+Generate build reports done
+
+14:30:47 Build Finished (took 2s.133ms)
+

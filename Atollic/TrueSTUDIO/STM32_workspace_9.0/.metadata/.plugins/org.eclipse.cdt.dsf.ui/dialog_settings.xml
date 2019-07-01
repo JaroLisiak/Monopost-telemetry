@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.cdt.dsf.debug.internal.ui.ExpressionInformationControlCreator$ExpressionInformationControl">
+		<item value="677" key="SashWeightTree"/>
+		<item value="322" key="SashWeightDetails"/>
+		<item value="907" key="WIDTH"/>
+		<item value="545" key="HEIGHT"/>
+	</section>
+	<section name="org.eclipse.cdt.dsf.ui.MAX_DETAILS_LENGTH_DIALOG">
+		<item value="488" key="DIALOG_WIDTH"/>
+		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
+		<item value="183" key="DIALOG_HEIGHT"/>
+		<item value="447" key="DIALOG_X_ORIGIN"/>
+		<item value="255" key="DIALOG_Y_ORIGIN"/>
+	</section>
+</section>

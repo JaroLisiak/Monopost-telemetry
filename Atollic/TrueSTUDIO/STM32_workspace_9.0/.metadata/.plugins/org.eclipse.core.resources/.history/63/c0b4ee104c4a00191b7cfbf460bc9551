@@ -1,0 +1,738 @@
+/**
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ ** This notice applies to any and all portions of this file
+ * that are not between comment pairs USER CODE BEGIN and
+ * USER CODE END. Other portions of this file, whether
+ * inserted by the user or by software development tools
+ * are owned by their respective copyright owners.
+ *
+ * COPYRIGHT(c) 2019 STMicroelectronics
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of STMicroelectronics nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
+ */
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+#include "stm32f4xx_hal.h"
+
+/* USER CODE BEGIN Includes */
+//#include "lora.h"
+#include "lora_sx1276.h"
+#define GPSSENTENCE 100
+#define HC12SENTENCE 100
+
+/* USER CODE END Includes */
+
+/* Private variables ---------------------------------------------------------*/
+CAN_HandleTypeDef hcan1;
+
+I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c2;
+
+SPI_HandleTypeDef hspi2;
+SPI_HandleTypeDef hspi3;
+SPI_HandleTypeDef hspi4;
+
+UART_HandleTypeDef huart7;
+UART_HandleTypeDef huart8;
+UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
+
+/* USER CODE BEGIN PV */
+/* Private variables ---------------------------------------------------------*/
+uint8_t txPCBuffer[50];
+uint8_t rxPCBuffer[50];
+uint8_t txRFBuffer[50] = "AT\0";
+;
+uint8_t rxRFBuffer[50];
+uint8_t HcRxBuffer[50];
+
+uint8_t message[20] = "HH\0";
+
+uint8_t hcRxChar[2];	// handed character from HC-12
+uint8_t Hc_12_Sentence[HC12SENTENCE];
+int Hc_12_Sentence_length = 0;
+uint8_t hcNeedPrint = 0;
+
+// GPS stuff
+uint8_t RxFromGpsBuffer[20];
+uint8_t Gps_Sentence[GPSSENTENCE];
+int Gps_Sentence_length = 0;
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_CAN1_Init(void);
+static void MX_I2C1_Init(void);
+static void MX_I2C2_Init(void);
+static void MX_SPI2_Init(void);
+static void MX_SPI3_Init(void);
+static void MX_SPI4_Init(void);
+static void MX_UART7_Init(void);
+static void MX_UART8_Init(void);
+static void MX_USART1_UART_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_USART3_UART_Init(void);
+
+/* USER CODE BEGIN PFP */
+/* Private function prototypes -----------------------------------------------*/
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart == &huart8) {
+		vypis(hcRxChar);
+		// received 1 char from HC-12
+		// HC-12 message format "@<message>\n"
+		if (hcRxChar[0] == '@') {
+			Hc_12_Sentence_length = 0;
+			hcNeedPrint = 0;
+			Hc_12_Sentence[Hc_12_Sentence_length++] = hcRxChar[0];
+		} else {
+			if (hcRxChar[0] == '\n') {
+				Hc_12_Sentence[Hc_12_Sentence_length++] = hcRxChar[0];
+				Hc_12_Sentence[Hc_12_Sentence_length++] = '\0';
+				hcNeedPrint = 1;
+			} else {
+				Hc_12_Sentence[Hc_12_Sentence_length++] = hcRxChar[0];
+			}
+		}
+		HAL_UART_Receive_IT(&huart8, hcRxChar, 1);
+	}
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+	//vypis("Odoslane: f");
+}
+
+/*
+ void UART8_IRQHandler(){
+ vypis("asdasdasd");
+ HAL_UART_IRQHandler(&huart1);
+ }*/
+
+void blink(int x) {
+	for (int i = 0; i < x; i++) {
+		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, 1);
+		HAL_Delay(50);
+		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, 0);
+		HAL_Delay(50);
+	}
+}
+
+void vypis(char str[]) {
+	HAL_UART_Transmit(&huart2, (uint8_t*) str, strlen(str), 100);
+	hcNeedPrint = 0;
+}
+
+/* USER CODE END PFP */
+
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
+/**
+ * @brief  The application entry point.
+ *
+ * @retval None
+ */
+int main(void) {
+	/* USER CODE BEGIN 1 */
+
+	/* USER CODE END 1 */
+
+	/* MCU Configuration----------------------------------------------------------*/
+
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
+
+	/* USER CODE BEGIN Init */
+
+	/* USER CODE END Init */
+
+	/* Configure the system clock */
+	SystemClock_Config();
+
+	/* USER CODE BEGIN SysInit */
+
+	/* USER CODE END SysInit */
+
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	//MX_CAN1_Init();
+	MX_I2C1_Init();
+	MX_I2C2_Init();
+	MX_SPI2_Init();
+	MX_SPI3_Init();
+	MX_SPI4_Init();
+	MX_UART7_Init();
+	MX_UART8_Init();
+	MX_USART1_UART_Init();
+	MX_USART2_UART_Init();
+	MX_USART3_UART_Init();
+	/* USER CODE BEGIN 2 */
+
+	vypis("### Zakladna ###\r\n");
+	if (HAL_UART_Receive_IT(&huart8, hcRxChar, 1) != HAL_OK) {
+		vypis("Error: HC-12");
+	}
+
+	if (HAL_UART_Receive_IT(&huart1, RxFromGpsBuffer, 1) != HAL_OK) {
+		vypis("Error: GPS");
+	}
+
+	/*
+	 * 				  RX - TX
+	 * USART 1 - GPS - PA10, PA9
+	 * GPS: 9600 Baud, 8 bits, no parity bit, 1 stop bit,
+	 *
+	 * USART 2 - SERIAL USB - PA3, PA2
+	 * USART 3 - MICROBUS CLICK2 - PD9, PD8 + PD11 + PD12
+	 * UART 7 - ESP32 - PE7, PE8
+	 * UART 8 - HC-12 - PE0, PE1, PC3 (set)
+	 * SET PIN = low (reset) -> setting mode, AT
+	 * SET PIN = high (set) -> communication mode
+	 *
+	 * SPI4 - LORA - PE2 - PE6
+	 * USART3
+	 *
+	 * I2C2 - GPS
+	 *
+	 */
+
+	lora_sx1276 lora;
+	//lora_mode_standby(&lora);
+	// SX1276 compatible module connected to SPI1, NSS pin connected to GPIO with label LORA_NSS
+	HAL_GPIO_WritePin(LoRa_RST_GPIO_Port, LoRa_RST_Pin, GPIO_PIN_SET);
+	HAL_Delay(300);
+
+	HAL_GPIO_WritePin(LoRa_RST_GPIO_Port, LoRa_RST_Pin, GPIO_PIN_RESET);
+	HAL_Delay(300);
+
+
+
+	uint8_t res = lora_init(&lora, &hspi4, LoRa_SPI4_NSS_GPIO_Port, LoRa_SPI4_NSS_Pin, LORA_BASE_FREQUENCY_433);
+	if (res != LORA_OK) {
+		// Initialization failed
+		vypis("LoRa Init failed!\r\n");
+	}
+
+
+
+	/*
+	 lora_init();
+	 int a = -20;
+	 int b = -20;
+	 int c = -20;
+
+	 a = lora_available();
+	 b = lora_begin(868E6);
+	 c = lora_readRegister(0x01);
+	 */
+
+	/*
+	 * konfiguracia HC-12
+	 */
+	HAL_GPIO_WritePin(HC_SET_GPIO_Port, HC_SET_Pin, GPIO_PIN_RESET); // send mode
+	HAL_Delay(300);
+	HAL_GPIO_WritePin(HC_SET_GPIO_Port, HC_SET_Pin, GPIO_PIN_SET); // config mode
+	HAL_Delay(300);
+
+	vypis("Test HC-12\n\r");
+	HAL_UART_Transmit(&huart8, "AT\0", 3, 100);
+	HAL_Delay(100);
+
+	// test GPS
+	//GPS_Init();
+	//GPS_InitData();
+	//HAL_UART_Transmit_IT(&huart1,(uint8_t*)"AT\0",3);
+
+	HAL_UART_Receive(&huart1, RxFromGpsBuffer, 20, 200);
+	HAL_Delay(200);
+	vypis(RxFromGpsBuffer);
+
+	// set HC-12 to normal mode
+	HAL_GPIO_WritePin(HC_SET_GPIO_Port, HC_SET_Pin, GPIO_PIN_SET); // send mode
+	HAL_Delay(300);
+
+	/*
+	 HAL_UART_Transmit_IT(&huart8, (uint8_t *) txRFBuffer, sizeof(txRFBuffer));
+	 HAL_Delay(200);
+
+	 if(hcRxChar[0] == 'O' && hcRxChar[1] == 'K'){
+	 blink(2);
+	 vypis(hcRxChar);
+	 HAL_Delay(1000);
+	 }
+	 */
+
+	/* USER CODE END 2 */
+
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+	while (1) {
+		if (hcNeedPrint == 1) {
+			vypis("[HC-12] Zakladna prijala: ");
+			vypis(Hc_12_Sentence);
+			vypis("\r");
+		}
+		//HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+		//HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+		//HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+		HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+
+		//HAL_UART_Transmit_IT(&huart1,(uint8_t*)"AT\n\0",4);
+
+		// fungujuce odosielane pomocou HC-12
+		//vypis("Odosielam udaje zo zakladne cez HC-12\r\n");
+		//HAL_UART_Transmit(&huart8, "@udaje zo zakladne\r\n", 19,100);
+
+		uint8_t res2 = lora_send_packet(&lora, (uint8_t *) "test", 4);
+		if (res2 == LORA_OK) {
+			vypis("LoRa Send OK!\r\n");
+		} else if (res2 == LORA_TIMEOUT) {
+			vypis("LoRa Send Timeout!\r\n");
+		} else if (res2 == LORA_BUSY) {
+			vypis("LoRa Send Busy!\r\n!");
+		}
+
+
+		// Receive buffer
+		uint8_t buffer[32];
+		// Put LoRa modem into continuous receive mode
+		lora_mode_receive_continious(&lora);
+		// Wait for packet up to 10sec
+		uint8_t res3;
+		uint8_t len = lora_receive_packet_blocking(&lora, buffer,
+				sizeof(buffer), 10000, &res3);
+		if (res3 != LORA_OK) {
+			// Receive failed
+			vypis("LoRa Receive failed!\r\n");
+		}
+		buffer[len] = 0;  // null terminate string to print it
+		vypis("LoRa prijala: ");
+		vypis(buffer);
+		vypis("<end>\r\n");
+
+		HAL_Delay(1000);
+
+		/* USER CODE END WHILE */
+
+		/* USER CODE BEGIN 3 */
+
+	}
+	/* USER CODE END 3 */
+
+}
+
+/**
+ * @brief System Clock Configuration
+ * @retval None
+ */
+void SystemClock_Config(void) {
+
+	RCC_OscInitTypeDef RCC_OscInitStruct;
+	RCC_ClkInitTypeDef RCC_ClkInitStruct;
+
+	/**Configure the main internal regulator output voltage
+	 */
+	__HAL_RCC_PWR_CLK_ENABLE()
+	;
+
+	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+	/**Initializes the CPU, AHB and APB busses clocks
+	 */
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.HSICalibrationValue = 16;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	RCC_OscInitStruct.PLL.PLLM = 8;
+	RCC_OscInitStruct.PLL.PLLN = 180;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = 4;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+	/**Activate the Over-Drive mode
+	 */
+	if (HAL_PWREx_EnableOverDrive() != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+	/**Initializes the CPU, AHB and APB busses clocks
+	 */
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+	/**Configure the Systick interrupt time
+	 */
+	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
+
+	/**Configure the Systick
+	 */
+	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+
+	/* SysTick_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/* CAN1 init function */
+static void MX_CAN1_Init(void) {
+
+	hcan1.Instance = CAN1;
+	hcan1.Init.Prescaler = 16;
+	hcan1.Init.Mode = CAN_MODE_NORMAL;
+	hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
+	hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;
+	hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+	hcan1.Init.TimeTriggeredMode = DISABLE;
+	hcan1.Init.AutoBusOff = DISABLE;
+	hcan1.Init.AutoWakeUp = DISABLE;
+	hcan1.Init.AutoRetransmission = DISABLE;
+	hcan1.Init.ReceiveFifoLocked = DISABLE;
+	hcan1.Init.TransmitFifoPriority = DISABLE;
+	if (HAL_CAN_Init(&hcan1) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* I2C1 init function */
+static void MX_I2C1_Init(void) {
+
+	hi2c1.Instance = I2C1;
+	hi2c1.Init.ClockSpeed = 100000;
+	hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+	hi2c1.Init.OwnAddress1 = 0;
+	hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+	hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+	hi2c1.Init.OwnAddress2 = 0;
+	hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+	hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+	if (HAL_I2C_Init(&hi2c1) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* I2C2 init function */
+static void MX_I2C2_Init(void) {
+
+	hi2c2.Instance = I2C2;
+	hi2c2.Init.ClockSpeed = 100000;
+	hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+	hi2c2.Init.OwnAddress1 = 0;
+	hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+	hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+	hi2c2.Init.OwnAddress2 = 0;
+	hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+	hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+	if (HAL_I2C_Init(&hi2c2) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* SPI2 init function */
+static void MX_SPI2_Init(void) {
+
+	/* SPI2 parameter configuration*/
+	hspi2.Instance = SPI2;
+	hspi2.Init.Mode = SPI_MODE_MASTER;
+	hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+	hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+	hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+	hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+	hspi2.Init.NSS = SPI_NSS_SOFT;
+	hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+	hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
+	hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+	hspi2.Init.CRCPolynomial = 10;
+	if (HAL_SPI_Init(&hspi2) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* SPI3 init function */
+static void MX_SPI3_Init(void) {
+
+	/* SPI3 parameter configuration*/
+	hspi3.Instance = SPI3;
+	hspi3.Init.Mode = SPI_MODE_MASTER;
+	hspi3.Init.Direction = SPI_DIRECTION_2LINES;
+	hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
+	hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
+	hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
+	hspi3.Init.NSS = SPI_NSS_HARD_OUTPUT;
+	hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
+	hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
+	hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+	hspi3.Init.CRCPolynomial = 10;
+	if (HAL_SPI_Init(&hspi3) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* SPI4 init function */
+static void MX_SPI4_Init(void) {
+
+	/* SPI4 parameter configuration*/
+	hspi4.Instance = SPI4;
+	hspi4.Init.Mode = SPI_MODE_MASTER;
+	hspi4.Init.Direction = SPI_DIRECTION_2LINES;
+	hspi4.Init.DataSize = SPI_DATASIZE_8BIT;
+	hspi4.Init.CLKPolarity = SPI_POLARITY_LOW;
+	hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
+	hspi4.Init.NSS = SPI_NSS_HARD_OUTPUT;
+	hspi4.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	hspi4.Init.FirstBit = SPI_FIRSTBIT_MSB;
+	hspi4.Init.TIMode = SPI_TIMODE_DISABLE;
+	hspi4.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+	hspi4.Init.CRCPolynomial = 10;
+	if (HAL_SPI_Init(&hspi4) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* UART7 init function */
+static void MX_UART7_Init(void) {
+
+	huart7.Instance = UART7;
+	huart7.Init.BaudRate = 115200;
+	huart7.Init.WordLength = UART_WORDLENGTH_8B;
+	huart7.Init.StopBits = UART_STOPBITS_1;
+	huart7.Init.Parity = UART_PARITY_NONE;
+	huart7.Init.Mode = UART_MODE_TX_RX;
+	huart7.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart7.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart7) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* UART8 init function */
+static void MX_UART8_Init(void) {
+
+	huart8.Instance = UART8;
+	huart8.Init.BaudRate = 9600;
+	huart8.Init.WordLength = UART_WORDLENGTH_8B;
+	huart8.Init.StopBits = UART_STOPBITS_1;
+	huart8.Init.Parity = UART_PARITY_NONE;
+	huart8.Init.Mode = UART_MODE_TX_RX;
+	huart8.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart8.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart8) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* USART1 init function */
+static void MX_USART1_UART_Init(void) {
+
+	huart1.Instance = USART1;
+	huart1.Init.BaudRate = 9600;
+	huart1.Init.WordLength = UART_WORDLENGTH_8B;
+	huart1.Init.StopBits = UART_STOPBITS_1;
+	huart1.Init.Parity = UART_PARITY_NONE;
+	huart1.Init.Mode = UART_MODE_TX_RX;
+	huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart1) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* USART2 init function */
+static void MX_USART2_UART_Init(void) {
+
+	huart2.Instance = USART2;
+	huart2.Init.BaudRate = 115200;
+	huart2.Init.WordLength = UART_WORDLENGTH_8B;
+	huart2.Init.StopBits = UART_STOPBITS_1;
+	huart2.Init.Parity = UART_PARITY_NONE;
+	huart2.Init.Mode = UART_MODE_TX_RX;
+	huart2.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
+	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart2) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* USART3 init function */
+static void MX_USART3_UART_Init(void) {
+
+	huart3.Instance = USART3;
+	huart3.Init.BaudRate = 115200;
+	huart3.Init.WordLength = UART_WORDLENGTH_8B;
+	huart3.Init.StopBits = UART_STOPBITS_1;
+	huart3.Init.Parity = UART_PARITY_NONE;
+	huart3.Init.Mode = UART_MODE_TX_RX;
+	huart3.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
+	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart3) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/** Configure pins as 
+ * Analog
+ * Input
+ * Output
+ * EVENT_OUT
+ * EXTI
+ */
+static void MX_GPIO_Init(void) {
+
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	/* GPIO Ports Clock Enable */
+	__HAL_RCC_GPIOE_CLK_ENABLE()
+	;
+	__HAL_RCC_GPIOC_CLK_ENABLE()
+	;
+	__HAL_RCC_GPIOA_CLK_ENABLE()
+	;
+	__HAL_RCC_GPIOB_CLK_ENABLE()
+	;
+	__HAL_RCC_GPIOD_CLK_ENABLE()
+	;
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(LoRa_RST_GPIO_Port, LoRa_RST_Pin, GPIO_PIN_RESET);
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(GPIOC, HC_SET_Pin | LED1_Pin, GPIO_PIN_RESET);
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(M_PWR_GPIO_Port, M_PWR_Pin, GPIO_PIN_RESET);
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(GPIOD, LED4_Pin | LED3_Pin | LED2_Pin | CAN_STB_Pin,
+			GPIO_PIN_RESET);
+
+	/*Configure GPIO pin : LoRa_RST_Pin */
+	GPIO_InitStruct.Pin = LoRa_RST_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(LoRa_RST_GPIO_Port, &GPIO_InitStruct);
+
+	/*Configure GPIO pins : HC_SET_Pin LED1_Pin */
+	GPIO_InitStruct.Pin = HC_SET_Pin | LED1_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+	/*Configure GPIO pins : M_STAT_Pin M_RI_Pin */
+	GPIO_InitStruct.Pin = M_STAT_Pin | M_RI_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	/*Configure GPIO pin : M_PWR_Pin */
+	GPIO_InitStruct.Pin = M_PWR_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(M_PWR_GPIO_Port, &GPIO_InitStruct);
+
+	/*Configure GPIO pins : LED4_Pin LED3_Pin LED2_Pin CAN_STB_Pin */
+	GPIO_InitStruct.Pin = LED4_Pin | LED3_Pin | LED2_Pin | CAN_STB_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+}
+
+/* USER CODE BEGIN 4 */
+
+/* USER CODE END 4 */
+
+/**
+ * @brief  This function is executed in case of error occurrence.
+ * @param  file: The file name as string.
+ * @param  line: The line in file as a number.
+ * @retval None
+ */
+void _Error_Handler(char *file, int line) {
+	/* USER CODE BEGIN Error_Handler_Debug */
+	/* User can add his own implementation to report the HAL error return state */
+	while (1) {
+	}
+	/* USER CODE END Error_Handler_Debug */
+}
+
+#ifdef  USE_FULL_ASSERT
+/**
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
+void assert_failed(uint8_t* file, uint32_t line)
+{
+	/* USER CODE BEGIN 6 */
+	/* User can add his own implementation to report the file name and line number,
+	 tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	/* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
+
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

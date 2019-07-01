@@ -1,0 +1,12 @@
+LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/arch=x86
+LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/os=win32
+configDescList=org.eclipse.launchbar.core.descriptorType.default\:Telemetry_v2.elf,org.eclipse.launchbar.core.descriptorType.default\:Telemetry_v2_zakladna.elf,org.eclipse.launchbar.core.descriptorType.default\:Telemetry_v2_formula.elf
+eclipse.preferences.version=1
+org.eclipse.launchbar.core.descriptorType.default\:Telemetry_v2.elf/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:Telemetry_v2.elf/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:Telemetry_v2_formula.elf/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:Telemetry_v2_formula.elf/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:telemetry.elf/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:telemetry.elf/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:test.elf/activeLaunchMode=debug
+org.eclipse.launchbar.core.descriptorType.default\:test.elf/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
